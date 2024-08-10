@@ -1,10 +1,6 @@
 # Private Set Union
 
-## Tested Environment
-
-This code and following instruction is tested on Ubuntu 20.04, with g++ 9.4 and CMake 3.24.
-
-## Install Dependencies
+## Build
 
 ```shell
 git clone https://github.com/dujiajun/PSU
@@ -19,55 +15,36 @@ cd cryptotools
 git checkout 4a83de286d05669678364173f9fdfe45a44ddbc6
 
 cd ..
-# in PSU/libOTe
+# in extern/libOTe
 python build.py --setup --boost --relic
 ```
+First build will failed, change `extern/libOTe/cryptoTools/thirdparty/relic/src/md/blake2.h`
 
-## Compile libOTe (two ways)
-
-### Visual Studio 2019/2022 + CMake Preset
-Using CMake Preset is to store multi-platform libraries in single directories. 
-
-Make sure you enables **Use CMakePresets.json to drive CMake configure, build, and test** in Visual Studio settings.
-
-1. Open `libOTe` folder with Visual Studio. VS will automatically create `CMakePresets.json` file.
-2. Modify the `CMakePresets.json`, adding following items to `cacheVariables`
-```json
-"ENABLE_NP": "ON",
-"ENABLE_KOS": "ON",
-"ENABLE_IKNP": "ON",
-"ENABLE_SILENTOT": "ON",
-"ENABLE_RELIC": "ON"
+```cpp
+// changed line 64:
+typedef struct ALIGNME( 64 ) __blake2s_state
+// and line 89:
+typedef struct ALIGNME( 64 ) __blake2b_state
 ```
-3. Click **Build - Install libOTe** menu.
 
-### Scripts from libOTe
-
-Choose a place to store compiled headers and static libraries, denoted by `/path_to_PSU/libOTe/out/install/linux`. If empty, it will be installed in `/usr/local`.
+And build again:
 
 ```shell
-cd libOTe
-python build.py --install=/path_to_PSU/libOTe/out/install/linux -- -D ENABLE_RELIC=ON -D ENABLE_NP=ON -D ENABLE_KOS=ON -D ENABLE_IKNP=ON -D ENABLE_SILENTOT=ON
+# in extern/libOTe
+python build.py --setup --boost --relic
+python build.py -- -D ENABLE_RELIC=ON -D ENABLE_NP=ON -D ENABLE_KOS=ON -D ENABLE_IKNP=ON -D ENABLE_SILENTOT=ON
+cd ../..
+# in PSU ROOT
+cmake -B build .
+cmake --build build -j 40  
 ```
-If you change the install dir, do not forget to modify relevant directories in PSU's `CMakeLists.txt`.
 
-## Compile PSU (two ways)
 
-### Visual Studio 2019/2022 + CMake Preset
-1. Open `PSU` folder with VS.
-2. Modify the `CMakePresets.json`, adding following item to `cacheVariables`
-```json
-"PRESET_NAME": "${presetName}"
-```
-3. Click **Build - Build All** Menu.
+## Run OSN
 
-### Only CMake
-
-Set the variable `PRESET_NAME` (If install dir is `/path_to_PSU/libOTe/out/install/linux`, `PRESET_NAME` will be `linux`) or modify `CMakeLists.txt`.
+Run OSN with data size 2^20 in 40 threads:
 
 ```shell
-mkdir build # in PSU dir
-cd build
-cmake .. -D PRESET_NAME=linux
-make -j
+build/test_osn 20 40
 ```
+
