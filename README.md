@@ -3,22 +3,11 @@
 ## Build
 
 ```shell
-git clone https://github.com/dujiajun/PSU
-cd PSU
-
-git clone https://github.com/osu-crypto/libOTe
-cd libOTe
-git checkout 3a40823f0507710193d5b90e6917878853a2f836
-
-git clone https://github.com/ladnir/cryptotools
-cd cryptotools
-git checkout 4a83de286d05669678364173f9fdfe45a44ddbc6
-
-cd ..
-# in extern/libOTe
+git submodule update --init --recursive 
+cd extern/libOTe
 python build.py --setup --boost --relic
 ```
-First build will failed, change `extern/libOTe/cryptoTools/thirdparty/relic/src/md/blake2.h`
+The first build will failed, change `extern/libOTe/cryptoTools/thirdparty/relic/src/md/blake2.h`
 
 ```cpp
 // changed line 64:
